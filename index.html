@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>امتحان عملي الباثولوجي 🔬</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f8fafc;
+        }
+        .dotted-input {
+            border: none;
+            border-bottom: 2px dashed #9ca3af;
+            background: transparent;
+            outline: none;
+            width: 100%;
+            text-align: center;
+            font-size: 1.125rem;
+            padding: 0.5rem;
+            color: #1e293b;
+            direction: ltr;
+            transition: border-color 0.3s;
+        }
+        .dotted-input:focus {
+            border-bottom-color: #3b82f6;
+            border-bottom-style: solid;
+        }
+        .correct-input {
+            border-bottom-color: #10b981 !important;
+            border-bottom-style: solid;
+            color: #047857;
+            font-weight: bold;
+        }
+        .wrong-input {
+            border-bottom-color: #ef4444 !important;
+            border-bottom-style: solid;
+            color: #b91c1c;
+        }
+    </style>
+</head>
+<body class="text-gray-800 pb-20">
+
+    <header class="bg-indigo-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center max-w-3xl">
+            <h1 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <span>🔬</span> مراجعة الباثولوجي العملي
+            </h1>
+            <div class="bg-indigo-800 px-4 py-2 rounded-lg font-bold text-lg border border-indigo-600 shadow-inner">
+                النتيجة: <span id="score" class="text-green-400">0</span> / 49
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 mt-8 max-w-3xl">
+        <div class="bg-white rounded-2xl shadow-sm p-6 mb-8 text-center border-t-4 border-indigo-500">
+            <h2 class="text-lg font-bold mb-2">تعليمات الامتحان 📝</h2>
+            <p class="text-gray-600 text-sm">تم تفريغ الصور من البيانات. المطلوب منك كتابة <strong>اسم الصورة بالكامل</strong> وكتابة <strong>البيانات المشار إليها بالأسهم</strong> في الأماكن المخصصة. (الأسئلة تظهر بترتيب عشوائي).</p>
+            <p class="text-red-500 text-xs mt-2 font-bold">تأكد من وضع ملف الـ HTML بجوار الصور (1.jpg إلى 49.jpg) في نفس المجلد.</p>
+        </div>
+
+        <div id="quiz-container" class="space-y-8">
+            <!-- سيتم إضافة الأسئلة هنا عشوائياً -->
+        </div>
+    </main>
+
+    <script>
+        // داتا الامتحان كاملة متطابقة مع أرقام الصور في ملف الـ PDF الأبيض
+        const pathologyData = [
+            { id: 1, title: "Inflammatory cells(neutrophils), microscopic picture", labels: ["Multilobed nucleus"] },
+            { id: 2, title: "Inflammatory cells(neutrophils), microscopic picture", labels: ["Multilobed nucleus"] },
+            { id: 3, title: "Inflammatory cells(neutrophils), microscopic picture", labels: ["neutrophils"] },
+            { id: 4, title: "Inflammatory cells (eosinophils), microscopic picture", labels: ["Bilobed nucleus"] },
+            { id: 5, title: "Inflammatory cells (eosinophils), microscopic picture", labels: ["Bilobed nucleus"] },
+            { id: 6, title: "Inflammatory cells (lymphocytes), microscopic picture", labels: [] },
+            { id: 7, title: "Inflammatory cells (plasma cells), microscopic picture", labels: ["Cart wheel nucleus"] },
+            { id: 8, title: "Inflammatory cells (giant cells), microscopic picture", labels: ["Multinucleated cells"] },
+            { id: 9, title: "Acute suppurative localized inflammation (skin abscess), gross picture", labels: ["hyperemia", "pus"] },
+            { id: 10, title: "Acute suppurative localized inflammation (skin abscess), gross picture", labels: ["pus"] },
+            { id: 11, title: "Acute suppurative localized inflammation (lung abscess), gross picture", labels: ["cavity"] },
+            { id: 12, title: "Acute suppurative localized inflammation (furuncle), gross picture", labels: ["pus"] },
+            { id: 13, title: "Acute suppurative localized inflammation (furuncle), gross picture", labels: ["hyperemia"] },
+            { id: 14, title: "Acute suppurative localized inflammation (carbuncle), gross picture", labels: ["Multiple small abscesses"] },
+            { id: 15, title: "Acute suppurative localized inflammation (carbuncle), gross picture", labels: ["Multiple small abscesses"] },
+            { id: 16, title: "Acute suppurative localized inflammation (carbuncle), gross picture", labels: ["Multiple small abscesses"] },
+            { id: 17, title: "Acute suppurative diffuse inflammation (cellulitis),eye, gross picture", labels: ["hyperemia"] },
+            { id: 18, title: "Acute suppurative diffuse inflammation (cellulitis),eye, gross picture", labels: ["edema and hyperemia"] },
+            { id: 19, title: "Acute suppurative diffuse inflammation (cellulitis),hand, gross picture", labels: ["edema and hyperemia"] },
+            { id: 20, title: "Acute suppurative diffuse inflammation (cellulitis),leg , gross picture", labels: ["hyperemia", "pus"] },
+            { id: 21, title: "Acute Suppurative diffuse inflammation (appendicitis) with perforation, gross picture", labels: ["stool"] },
+            { id: 22, title: "Acute Suppurative diffuse inflammation (appendicitis), gross picture", labels: ["Congested cappilaries"] },
+            { id: 23, title: "Acute Suppurative diffuse inflammation (appendicitis), microscopic picture", labels: ["Sheded mucosa"] },
+            { id: 24, title: "Acute suppurative diffuse inflammation (appendicitis),microscopic picture", labels: ["Lymphoid follicle", "Sheded mucosa"] },
+            { id: 25, title: "Acute suppurative diffuse inflammation (appendicitis),microscopic picture", labels: ["Necrotic cells, neutrophils and pus cells"] },
+            { id: 26, title: "Acute suppurative diffuse inflammation (appendicitis),microscopic picture", labels: ["Lymphoid follicle", "Sheded mucosa"] },
+            { id: 27, title: "Acute inflammation, microscopic picture", labels: ["dilated congested capillaries", "Acute inflammatory cells", "fluid exudate"] },
+            { id: 28, title: "Chronic inflammation, microscopic picture", labels: ["Thick walled capillaries", "lymphocytes"] },
+            { id: 29, title: "Wound healing by granulation tissue, gross picture", labels: ["Reddish granular irregular"] },
+            { id: 30, title: "Wound healing by granulation tissue, gross picture", labels: ["Reddish granular irregular"] },
+            { id: 31, title: "Wound healing by granulation tissue, microscopic picture", labels: ["Inflammatory cells", "New capillaries", "Fibroblast"] },
+            { id: 32, title: "Wound healing by granulation tissue, microscopic picture", labels: ["New capillaries", "Inflammatory cells"] },
+            { id: 33, title: "Wound healing by granulation tissue, microscopic picture", labels: ["Inflammatory cells", "New capillaries", "Fibroblast"] },
+            { id: 34, title: "First intention healing (surgical wound),gross picture", labels: ["Surgical incision"] },
+            { id: 35, title: "First intention healing (surgical wound),gross picture", labels: ["Surgical incision"] },
+            { id: 36, title: "First intention healing (surgical wound),gross picture", labels: ["Surgical incision"] },
+            { id: 37, title: "First intention healing (surgical wound),gross picture", labels: ["Surgical incision"] },
+            { id: 38, title: "Second intention healing (burn), gross picture", labels: ["Open wound"] },
+            { id: 39, title: "Complications of wound healing, (Keloid), gross picture", labels: ["Large protuberant mass"] },
+            { id: 40, title: "Complications of wound healing, (Keloid and pigmentation), gross picture", labels: [] },
+            { id: 41, title: "Complications of wound healing, (Keloid and pigmentation), gross picture", labels: [] },
+            { id: 42, title: "Complications of wound healing, (Keloid), gross picture", labels: [] },
+            { id: 43, title: "Complications of wound healing, (Keloid), microscopic picture", labels: ["Bands of brightly eosinophilic collagen fibers", "Fibroblasts"] },
+            { id: 44, title: "Complications of wound healing, (Keloid), microscopic picture", labels: ["Bands of brightly eosinophilic collagen fibers"] },
+            { id: 45, title: "Complications of wound healing (hypertrophic Scar), gross picture", labels: [] },
+            { id: 46, title: "Complications of wound healing (hypertrophic Scar), gross picture", labels: [] },
+            { id: 47, title: "Complications of wound healing (hypertrophic Scar), gross picture", labels: [] },
+            { id: 48, title: "Complications of wound healing (chronic foot ulcer), gross picture", labels: [] },
+            { id: 49, title: "Complications of wound healing (infection), gross picture", labels: ["suppuration"] }
+        ];
+
+        let currentScore = 0;
+        let answeredQuestions = new Set();
+        const quizContainer = document.getElementById('quiz-container');
+
+        // خلط المصفوفة عشوائياً (Shuffle)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        const shuffledData = shuffleArray([...pathologyData]);
+
+        // تنظيف النصوص للمقارنة الدقيقة
+        function normalizeString(str) {
+            return str.toLowerCase()
+                      .replace(/[\(\),]/g, ' ') 
+                      .replace(/\s+/g, ' ')     
+                      .trim();
+        }
+
+        // بناء الواجهة العشوائية للامتحان
+        shuffledData.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = "bg-white p-6 rounded-2xl shadow-md border border-gray-200 flex flex-col items-center relative overflow-hidden";
+            
+            // شريط جانبي تجميلي
+            const sideColor = document.createElement('div');
+            sideColor.className = "absolute top-0 right-0 w-2 h-full bg-indigo-500";
+            card.appendChild(sideColor);
+
+            // مسار الصورة
+            const imageSrc = `${item.id}.jpg`;
+            const fallbackSrc = `https://placehold.co/600x400/fee2e2/991b1b?text=Image+${item.id}+Missing`;
+            
+            let labelsHtml = "";
+            if(item.labels.length > 0) {
+                labelsHtml += `<div class="w-full text-right mt-6 mb-2"><span class="text-sm font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full">البيانات المخفية على الأسهم (${item.labels.length}):</span></div>`;
+                item.labels.forEach((_, i) => {
+                    labelsHtml += `
+                        <div class="w-full px-2 mb-3">
+                            <input type="text" id="label-${item.id}-${i}" class="dotted-input font-medium text-indigo-900" placeholder="البيان المخفي رقم ${i+1} ........................." autocomplete="off">
+                        </div>
+                    `;
+                });
+            }
+
+            card.innerHTML += `
+                <div class="w-full flex justify-between items-center mb-5 px-2">
+                    <span class="bg-indigo-100 text-indigo-800 text-sm font-bold px-4 py-1.5 rounded-lg shadow-sm">السؤال ${index + 1}</span>
+                    <span class="text-xs text-gray-400">صورة أصلية رقم ${item.id}</span>
+                </div>
+                
+                <img src="${imageSrc}" onerror="this.onerror=null; this.src='${fallbackSrc}';" alt="Slide ${item.id}" class="max-w-full h-auto rounded-xl mb-6 shadow border border-gray-300">
+                
+                <div class="w-full text-right mb-2"><span class="text-sm font-bold text-red-700 bg-red-50 px-3 py-1 rounded-full">اسم الصورة (Title):</span></div>
+                <div class="w-full px-2 mb-2">
+                    <input type="text" id="answer-${item.id}" class="dotted-input font-bold" placeholder="اكتب اسم الصورة بالكامل هنا ........................." autocomplete="off">
+                </div>
+                
+                ${labelsHtml}
+                
+                <div class="flex flex-col sm:flex-row gap-3 mt-6 w-full px-2">
+                    <button id="btn-check-${item.id}" onclick="checkAnswer(${item.id})" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition duration-200">
+                        تأكيد الإجابة ✔️
+                    </button>
+                    <button onclick="showAnswer(${item.id})" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-4 rounded-xl shadow-sm transition duration-200">
+                        إظهار الإجابة 👁️
+                    </button>
+                </div>
+                
+                <div id="feedback-${item.id}" class="w-full px-2 mt-5 hidden transition-all duration-300"></div>
+            `;
+            quizContainer.appendChild(card);
+        });
+
+        // فحص الإجابة (الاسم + البيانات)
+        window.checkAnswer = function(id) {
+            if(answeredQuestions.has(id)) return;
+
+            const item = pathologyData.find(p => p.id === id);
+            const inputElement = document.getElementById(`answer-${id}`);
+            const feedbackDiv = document.getElementById(`feedback-${id}`);
+            const btnCheck = document.getElementById(`btn-check-${id}`);
+            
+            let allCorrect = true;
+            let feedbackMessage = "";
+
+            // 1. فحص اسم الصورة
+            if (normalizeString(inputElement.value) === normalizeString(item.title)) {
+                inputElement.classList.add("correct-input");
+                feedbackMessage += `<div class="text-green-700 flex items-center gap-2"><span class="text-xl">✅</span> <span>اسم الصورة صحيح!</span></div>`;
+            } else {
+                allCorrect = false;
+                inputElement.classList.add("wrong-input");
+                feedbackMessage += `<div class="text-red-700 mb-2"><span class="text-xl">❌</span> اسم الصورة خطأ. <br><span class="text-gray-600 text-sm mt-1 inline-block">الصحيح هو:</span><br><span dir="ltr" class="font-bold text-indigo-900 bg-indigo-50 px-2 py-1 rounded inline-block mt-1">${item.title}</span></div>`;
+            }
+
+            // 2. فحص بيانات الأسهم
+            if (item.labels.length > 0) {
+                let userLabels = [];
+                for(let i=0; i < item.labels.length; i++) {
+                    const lblInput = document.getElementById(`label-${id}-${i}`);
+                    userLabels.push({ val: normalizeString(lblInput.value), el: lblInput });
+                }
+
+                let correctLabelsNormalized = item.labels.map(l => normalizeString(l));
+                
+                userLabels.forEach(userInput => {
+                    if(correctLabelsNormalized.includes(userInput.val) && userInput.val !== "") {
+                        userInput.el.classList.add("correct-input");
+                        const indexToRemove = correctLabelsNormalized.indexOf(userInput.val);
+                        correctLabelsNormalized.splice(indexToRemove, 1);
+                    } else {
+                        allCorrect = false;
+                        userInput.el.classList.add("wrong-input");
+                    }
+                });
+
+                if(correctLabelsNormalized.length > 0) {
+                    feedbackMessage += `<div class="text-red-700 mt-3 border-t border-red-200 pt-3"><span class="text-xl">❌</span> أخطأت أو نسيت بعض البيانات.<br><span class="text-gray-600 text-sm mt-1 inline-block">البيانات الصحيحة للأسهم:</span><br><div dir="ltr" class="font-bold text-indigo-900 mt-1">${item.labels.map(l => `<span class="bg-indigo-50 px-2 py-1 rounded m-1 inline-block">${l}</span>`).join("")}</div></div>`;
+                } else {
+                    feedbackMessage += `<div class="text-green-700 mt-3 border-t border-green-200 pt-3 flex items-center gap-2"><span class="text-xl">✅</span> <span>جميع بيانات الأسهم صحيحة!</span></div>`;
+                }
+            }
+
+            // إظهار النتيجة
+            feedbackDiv.classList.remove("hidden");
+            feedbackDiv.classList.add("p-4", "rounded-xl", "text-right", "direction-rtl", "bg-gray-50", "border", "shadow-inner");
+            feedbackDiv.innerHTML = feedbackMessage;
+
+            if(allCorrect) {
+                currentScore++;
+                document.getElementById('score').textContent = currentScore;
+            }
+
+            // قفل السؤال بعد الإجابة
+            answeredQuestions.add(id);
+            inputElement.readOnly = true;
+            for(let i=0; i < item.labels.length; i++) {
+                document.getElementById(`label-${id}-${i}`).readOnly = true;
+            }
+            btnCheck.disabled = true;
+            btnCheck.classList.remove("bg-indigo-600", "hover:bg-indigo-700");
+            btnCheck.classList.add("bg-gray-400", "cursor-not-allowed");
+        };
+
+        // إظهار الإجابة (للمذاكرة)
+        window.showAnswer = function(id) {
+            const item = pathologyData.find(p => p.id === id);
+            
+            document.getElementById(`answer-${id}`).value = item.title;
+            for(let i=0; i < item.labels.length; i++) {
+                document.getElementById(`label-${id}-${i}`).value = item.labels[i];
+            }
+            
+            if(!answeredQuestions.has(id)) {
+                answeredQuestions.add(id); 
+                const btnCheck = document.getElementById(`btn-check-${id}`);
+                btnCheck.disabled = true;
+                btnCheck.classList.remove("bg-indigo-600", "hover:bg-indigo-700");
+                btnCheck.classList.add("bg-gray-400", "cursor-not-allowed");
+                
+                document.getElementById(`answer-${id}`).readOnly = true;
+                for(let i=0; i < item.labels.length; i++) {
+                    document.getElementById(`label-${id}-${i}`).readOnly = true;
+                }
+            }
+        };
+    </script>
+</body>
+</html>
